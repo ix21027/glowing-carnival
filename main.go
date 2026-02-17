@@ -42,17 +42,7 @@ func main() {
 	// page.MustEval(`() => Object.defineProperty(navigator, 'userAgent', { get: () => 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Safari/605.1.15' })`)
 
 	// 4. Устанавливаем куки адреса (Винница, А. Первозванного 20)
-	fmt.Println(">>> Установка кук адреса...")
-	page.MustSetCookies(
-		&proto.NetworkCookie{Name: "f_search_type", Value: "0", Domain: "voe.com.ua", Path: "/"},
-		&proto.NetworkCookie{Name: "f_city_id", Value: "510100000", Domain: "voe.com.ua", Path: "/"},
-		&proto.NetworkCookie{Name: "f_street_id", Value: "1664", Domain: "voe.com.ua", Path: "/"},
-		&proto.NetworkCookie{Name: "f_house", Value: "20", Domain: "voe.com.ua", Path: "/"},
-		&proto.NetworkCookie{Name: "f_house_id", Value: "48508", Domain: "voe.com.ua", Path: "/"},
-		// URL-encoded значения
-		&proto.NetworkCookie{Name: "f_city", Value: "%D0%BC..%20%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8F%20%28%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8C%D0%BA%D0%B0%20%D0%9E%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C%2F%D0%9C.%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8F%29", Domain: "voe.com.ua", Path: "/"},
-		&proto.NetworkCookie{Name: "f_street", Value: "%D0%B2%D1%83%D0%BB%D0%B8%D1%86%D1%8F%20%D0%90%D0%BD%D0%B4%D1%80%D1%96%D1%8F%20%D0%9F%D0%B5%D1%80%D0%B2%D0%BE%D0%B7%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE", Domain: "voe.com.ua", Path: "/"},
-	)
+	
 
 	// 5. Переход на сайт
 	fmt.Println(">>> Переход на сайт...")
