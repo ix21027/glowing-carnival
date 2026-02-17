@@ -1,4 +1,4 @@
-name: iPhone Scraper
+name: Go-Rod Mobile Scraper
 
 on:
   workflow_dispatch:
@@ -6,36 +6,43 @@ on:
     - cron: '15 * * * *'
 
 jobs:
-  scrape-mobile:
+  scrape-iphone:
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v4
 
-      # 1. WARP (VPN) — Без этого мобильная эмуляция не спасет от бана по IP
+      # 1. Смена IP через WARP (ОБЯЗАТЕЛЬНО)
       - name: Setup Warp
         uses: fscarmen/warp-on-actions@v1.1
         with:
           stack: dual
 
-      - uses: actions/setup-python@v5
+      # 2. Установка Go
+      - uses: actions/setup-go@v5
         with:
-          python-version: '3.10'
+          go-version: '1.25'
 
-      # 2. Установка Chrome и Xvfb (для запуска браузера в графическом режиме)
-      - name: Install System Deps
+      # 3. Установка Chrome и виртуального экрана (Xvfb)
+      - name: Install Deps
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable xvfb
 
-      - name: Install Nodriver
-        run: pip install -r requirements.txt
+      # 4. Скачивание библиотек Go
+      - name: Go Mod Tidy
+        run: |
+          go mod tidy
+          go get github.com/go-rod/rod
+          go get github.com/go-rod/stealth
 
-      # 3. Запуск через xvfb-run
-      # Это создает виртуальный экран 390x844 (размер iPhone)
-      - name: Run Script
-        run: xvfb-run --auto-servernum --server-args="-screen 0 390x844x24" python main.py
+      # 5. ЗАПУСК
+      # xvfb-run создает виртуальный экран с разрешением iPhone (примерно)
+      # Это позволяет запускать Rod в режиме Headless(false)
+      - name: Run Scraper
+        run: xvfb-run --auto-servernum --server-args="-screen 0 375x812x24" go run main.go
 
+      # 6. Сохранение
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
