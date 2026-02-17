@@ -1,50 +1,46 @@
-name: Nodriver Scraper
+name: iPhone Scraper
 
 on:
-  workflow_dispatch: # Кнопка ручного запуска
+  workflow_dispatch:
   schedule:
-    - cron: '15 * * * *' # Запуск каждый час в 15 минут
+    - cron: '15 * * * *'
 
 jobs:
-  scrape:
+  scrape-mobile:
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v4
 
-      # 1. WARP (VPN) - Обязательно для смены "грязного" IP
+      # 1. WARP (VPN) — Без этого мобильная эмуляция не спасет от бана по IP
       - name: Setup Warp
         uses: fscarmen/warp-on-actions@v1.1
         with:
           stack: dual
 
-      # 2. Установка Python
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # 3. Установка Chrome и Xvfb (виртуальный монитор)
+      # 2. Установка Chrome и Xvfb (для запуска браузера в графическом режиме)
       - name: Install System Deps
         run: |
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable xvfb
 
-      # 4. Установка Nodriver
-      - name: Install Python Libs
+      - name: Install Nodriver
         run: pip install -r requirements.txt
 
-      # 5. ЗАПУСК СКРИПТА
-      # xvfb-run создает виртуальный дисплей, чтобы nodriver думал, что у него есть монитор.
-      # Это позволяет запускать браузер с headless=False, что критично для обхода Cloudflare.
-      - name: Run Scraper
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python main.py
+      # 3. Запуск через xvfb-run
+      # Это создает виртуальный экран 390x844 (размер iPhone)
+      - name: Run Script
+        run: xvfb-run --auto-servernum --server-args="-screen 0 390x844x24" python main.py
 
-      # 6. Сохранение результатов
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: scrape-results
+          name: iphone-results
           path: |
             *.png
             *.html
