@@ -27,13 +27,14 @@ def main():
     # Г. Магия CDP (Chrome DevTools Protocol)
     # Мы принудительно говорим браузеру: "Ты - мобильный телефон"
     # Это меняет заголовки Sec-CH-UA-Mobile на ?1 (True)
-    page.run_cdp('Emulation.setUserAgentOverride', {
-        'userAgent': mobile_ua,
-        'platform': 'Android',
-        'mobile': True, # Самый важный флаг для Cloudflare
-        'deviceScaleFactor': 3,
-        'screenOrientation': {'type': 'portraitPrimary', 'angle': 0}
-    })
+    page.run_cdp('Emulation.setUserAgentOverride', 
+        userAgent=mobile_ua,
+        platform='Android',
+        mobile=True,
+        deviceScaleFactor=3,
+        screenOrientation={'type': 'portraitPrimary', 'angle': 0}
+    )
+
 
     # --- ТВОИ КУКИ АДРЕСА ---
     # Чтобы сразу увидеть график для твоего дома
