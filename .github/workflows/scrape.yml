@@ -1,0 +1,47 @@
+name: VOE Scraper
+
+on:
+  workflow_dispatch: # Кнопка ручного запуска
+  schedule:
+    - cron: '0 * * * *' # Запуск каждый час (настрой под себя)
+
+jobs:
+  check-schedule:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Включаем WARP для смены IP (обход гео-блока и репутации IP)
+      - name: Setup Warp
+        uses: fscarmen/warp-on-actions@v1.1
+        with:
+          stack: dual
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Устанавливаем Chrome (он нужен для DrissionPage)
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Script
+        run: python main.py
+
+      # Сохраняем результаты (скриншот и HTML), чтобы ты мог их скачать
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrape-results
+          path: |
+            *.png
+            *.html
