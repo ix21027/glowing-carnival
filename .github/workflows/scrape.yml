@@ -1,46 +1,44 @@
-name: VOE Bypass
+name: Check Schedule Vinnytsia
 
 on:
-  workflow_dispatch: # Кнопка запуска
+  workflow_dispatch:
+  schedule:
+    - cron: '15 * * * *' # Запускать в 15 минут каждого часа
 
 jobs:
-  bypass-cloudflare:
+  scrape:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # 1. Включаем VPN (Cloudflare WARP), чтобы IP не был от Azure
+      - uses: actions/checkout@v4
+      
+      # 1. ВКЛЮЧАЕМ WARP (VPN) - Это ключевой шаг для прохода Cloudflare
       - name: Setup Warp
         uses: fscarmen/warp-on-actions@v1.1
         with:
           stack: dual
 
-      # 2. Устанавливаем системные зависимости для экрана и Chrome
-      - name: Install System Deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb google-chrome-stable
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install Python Libs
-        run: pip install -r requirements.txt
+      # 2. Ставим DrissionPage и Chrome
+      - name: Install Deps
+        run: |
+          pip install DrissionPage==4.0.4.16
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       # 3. Запускаем
       - name: Run Script
         run: python main.py
 
-      # 4. Скачиваем результат (скриншот)
+      # 4. Скачиваем результат
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: debug-result
+          name: view-result
           path: |
-            result.png
-            schedule.html
+            *.png
+            *.html
