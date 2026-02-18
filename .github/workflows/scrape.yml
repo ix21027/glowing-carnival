@@ -1,37 +1,80 @@
 name: Check VOE Light Schedule
 
 on:
-  workflow_dispatch: # Позволяет запускать кнопку вручную
+  workflow_dispatch: # Кнопка для ручного запуска в интерфейсе GitHub
   schedule:
-    - cron: '0 * * * *' # Запуск каждый час (опционально)
+    - cron: '0 * * * *' # Автоматический запуск в начале каждого часа
 
 jobs:
   check-site:
-    runs-on: ubuntu-latest
+    # ВАЖНО: Используем 22.04. На "latest" (24.04) пакеты переименованы, что ломает Chrome.
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '25.6.1'
+          node-version: '25'
 
-      - name: Install Dependencies
+      - name: Install Node Dependencies
         run: npm install
 
-      - name: Install Linux Libraries for Puppeteer
-        # Устанавливаем библиотеки, нужные для Chrome и Xvfb
+      - name: Install Linux Libraries for Chrome & Xvfb
+        # Этот список зависимостей проверен и работает на Ubuntu 22.04
         run: |
-          apt-get update && apt-get install -y wget gnupg ca-certificates apt-transport-https chromium chromium-driver xvfb
-      - name: Run Script with Xvfb
-        # xvfb-run создает виртуальный экран
+          sudo apt-get update
+          sudo apt-get install -y \
+          xvfb \
+          libasound2 \
+          libatk1.0-0 \
+          libc6 \
+          libcairo2 \
+          libcups2 \
+          libdbus-1-3 \
+          libexpat1 \
+          libfontconfig1 \
+          libgbm1 \
+          libgcc1 \
+          libglib2.0-0 \
+          libgtk-3-0 \
+          libnspr4 \
+          libpango-1.0-0 \
+          libpangocairo-1.0-0 \
+          libstdc++6 \
+          libx11-6 \
+          libx11-xcb1 \
+          libxcb1 \
+          libxcomposite1 \
+          libxcursor1 \
+          libxdamage1 \
+          libxext6 \
+          libxfixes3 \
+          libxi6 \
+          libxrandr2 \
+          libxrender1 \
+          libxss1 \
+          libxtst6 \
+          ca-certificates \
+          fonts-liberation \
+          libappindicator1 \
+          libnss3 \
+          lsb-release \
+          xdg-utils \
+          wget
+
+      - name: Run Script with Virtual Display
+        # Если вы добавили секрет CF_COOKIE в настройки репозитория, он передастся сюда
+        env:
+          CF_COOKIE: ${{ secrets.CF_COOKIE }}
+        # xvfb-run создает виртуальный монитор, чтобы headless: false работал
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node index.js
 
-      - name: Upload Screenshot
+      - name: Upload Screenshot Artifact
         uses: actions/upload-artifact@v4
-        if: always() # Загружать, даже если скрипт упал с ошибкой
+        if: always() # Загружаем скриншот, даже если скрипт упал с ошибкой
         with:
           name: site-screenshot
           path: ./*.png
