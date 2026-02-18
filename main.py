@@ -1,107 +1,74 @@
-import asyncio
-import nodriver as uc
-import json
+from DrissionPage import ChromiumPage, ChromiumOptions
+import time
+import sys
 
-# Твой User-Agent
-USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Safari/605.1.15"
+# Твоя полная строка куки (я вставил её сюда)
+RAW_COOKIES = "f_search_type = 0;f_city = %D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8F;cf_chl_rc_ni = 12;f_search_type = 0;f_city = %D0%BC..%20%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8F%20%28%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8C%D0%BA%D0%B0%20%D0%9E%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C%2F%D0%9C.%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8F%29;f_city_id = 510100000;f_street = %D0%B2%D1%83%D0%BB%D0%B8%D1%86%D1%8F%20%D0%90%D0%BD%D0%B4%D1%80%D1%96%D1%8F%20%D0%9F%D0%B5%D1%80%D0%B2%D0%BE%D0%B7%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE;f_street_id = 1664;f_house = 20;f_house_id = 48508;_ga = GA1.3.1585069075.1771367448;_gid = GA1.3.814630124.1771367448;_gat = 1;cf_clearance = 0MX.80IKYdhLvdfheTnN7BcKKvVhdcEh7Yb0BHaqFzM-1771372423-1.2.1.1-oALSfxHnZXq7KJteUrkkfVyRNJ6Fq5uSmb1c31s3nBoqKfUOTeszu7kKfAM3NN8ZaLjkAXFmuzIbSLqgQ0gmTRWrbTvmrJD2rUgi6X1cia0aDMa6YLPbnl.F7Q6YroJOsH2.ChH9XwpTaFuiWxHpi9hd1R7lyb6UE8SnrWNkbjKha0qreciWuiHwo3hLi.GzUXsIuR2RQG6AAeX2SbTgCq.NJLtTilsx0efUd_WQeRHzdTnrjd2M32ridup1_Wl8"
 
-# Куки адреса (Винница, А. Первозванного 20)
-COOKIES = [
-    {'name': 'f_search_type', 'value': '0', 'domain': 'voe.com.ua', 'path': '/'},
-    {'name': 'f_city_id', 'value': '510100000', 'domain': 'voe.com.ua', 'path': '/'},
-    {'name': 'f_street_id', 'value': '1664', 'domain': 'voe.com.ua', 'path': '/'},
-    {'name': 'f_house', 'value': '20', 'domain': 'voe.com.ua', 'path': '/'},
-    {'name': 'f_house_id', 'value': '48508', 'domain': 'voe.com.ua', 'path': '/'},
-    {'name': 'f_city', 'value': '%D0%BC..%20%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8F%20%28%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8C%D0%BA%D0%B0%20%D0%9E%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C%2F%D0%9C.%D0%92%D1%96%D0%BD%D0%BD%D0%B8%D1%86%D1%8F%29', 'domain': 'voe.com.ua', 'path': '/'},
-    {'name': 'f_street', 'value': '%D0%B2%D1%83%D0%BB%D0%B8%D1%86%D1%8F%20%D0%90%D0%BD%D0%B4%D1%80%D1%96%D1%8F%20%D0%9F%D0%B5%D1%80%D0%B2%D0%BE%D0%B7%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE', 'domain': 'voe.com.ua', 'path': '/'}
-]
-
-async def enable_mobile_emulation(tab):
-    """Принудительно включаем мобильный режим через CDP"""
+def load_cookies(page, raw_cookie_string):
+    """Парсит строку куки и устанавливает их в браузер"""
+    cookie_list = []
+    # Разбиваем по точке с запятой
+    for item in raw_cookie_string.split(';'):
+        if '=' in item:
+            # Разбиваем только по первому знаку равно
+            name, value = item.strip().split('=', 1)
+            cookie_list.append({
+                'name': name.strip(),
+                'value': value.strip(),
+                'domain': '.voe.com.ua',
+                'path': '/'
+            })
     
-    # 1. Переопределяем User-Agent на уровне сети
-    await tab.send("Network.setUserAgentOverride", {
-        "userAgent": USER_AGENT,
-        "platform": "iPhone",
-        "acceptLanguage": "uk-UA,uk;q=0.9,en-US;q=0.8,en;q=0.7"
-    })
+    if cookie_list:
+        print(f">>> Загружаю {len(cookie_list)} куки (включая cf_clearance)...")
+        page.set.cookies(cookie_list)
 
-    # 2. Переопределяем параметры экрана (Эмуляция дисплея iPhone)
-    await tab.send("Emulation.setDeviceMetricsOverride", {
-        "width": 390,
-        "height": 844,
-        "deviceScaleFactor": 3, # Retina дисплей
-        "mobile": True,         # Самый важный флаг для Cloudflare
-        "screenOrientation": {"type": "portraitPrimary", "angle": 0}
-    })
+def main():
+    co = ChromiumOptions()
+    co.set_argument('--headless=new')
+    co.set_argument('--no-sandbox')
+    # Важно: User-Agent должен быть похож на тот, с которого ты скопировал куки (Windows Chrome)
+    co.set_user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36")
 
-    # 3. Включаем сенсорный ввод (Touch Events)
-    await tab.send("Emulation.setTouchEmulationEnabled", {
-        "enabled": True,
-        "maxTouchPoints": 5
-    })
+    page = ChromiumPage(co)
 
-async def main():
-    print(">>> Запуск Nodriver (iPhone Mode)...")
-    
-    # Запускаем браузер с размером окна как у телефона
-    # headless=False важно, так как мы используем Xvfb
-    browser = await uc.start(
-        headless=False,
-        browser_args=[
-            '--no-sandbox', 
-            f'--user-agent={USER_AGENT}',
-            '--window-size=390,844', # Размер окна браузера снаружи
-            '--disable-gpu' # Иногда помогает стабильности в Docker
-        ]
-    )
+    # 1. Сразу применяем твои куки
+    load_cookies(page, RAW_COOKIES)
 
     try:
-        # Получаем текущую вкладку
-        tab = await browser.get("about:blank")
-        
-        # Включаем полную эмуляцию iPhone
-        await enable_mobile_emulation(tab)
-        
-        # Устанавливаем куки
-        print(">>> Установка кук адреса...")
-        for cookie in COOKIES:
-            await tab.send("Network.setCookie", cookie)
-
         print(">>> Переход на сайт...")
-        await tab.get("https://voe.com.ua/disconnection/detailed")
-
-        # Ждем прохождения Cloudflare
-        print(">>> Ожидание (15 сек)...")
-        await tab.sleep(15)
-
-        # Сохраняем скриншот (чтобы увидеть, мобильная ли версия)
-        await tab.save_screenshot("iphone_view.png")
-
-        content = await tab.get_content()
+        page.get('https://voe.com.ua/disconnection/detailed')
         
-        if "table" in content or "Черга" in content:
-            print(">>> УСПЕХ! График найден.")
-            with open("schedule.html", "w", encoding="utf-8") as f:
-                f.write(content)
-        elif "Just a moment" in content:
-            print("!!! Cloudflare все еще проверяет. Пробуем подождать еще...")
-            await tab.sleep(10)
-            await tab.save_screenshot("retry_view.png")
+        # cf_clearance должна сработать мгновенно
+        time.sleep(5)
+
+        # 2. Проверка
+        if "Just a moment" in page.title:
+            print("!!! Cloudflare все еще думает. Возможно, User-Agent не совпал с кукой.")
+            page.get_screenshot(path='.', name='challenge.png')
+            time.sleep(5)
+        
+        # Проверяем наличие таблицы или слова "Черга"
+        if "table" in page.html or "Черга" in page.html:
+            print(">>> УСПЕХ! График найден (ул. А. Первозванного 20).")
             
-            # Вторая попытка прочитать контент
-            content = await tab.get_content()
+            # Сохраняем скриншот
+            page.get_screenshot(path='.', name='schedule.png', full_page=True)
+            
+            # Сохраняем HTML
             with open("schedule.html", "w", encoding="utf-8") as f:
-                f.write(content)
+                f.write(page.html)
         else:
-            print(">>> Странный результат. Сохраняю HTML для отладки.")
+            print(">>> Страница загрузилась, но графика нет. Скриншот сохранен.")
+            page.get_screenshot(path='.', name='error.png', full_page=True)
             with open("debug.html", "w", encoding="utf-8") as f:
-                f.write(content)
+                f.write(page.html)
 
     except Exception as e:
         print(f"!!! Ошибка: {e}")
     finally:
-        browser.stop()
+        page.quit()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
