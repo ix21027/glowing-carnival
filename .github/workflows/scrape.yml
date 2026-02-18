@@ -1,55 +1,33 @@
-name: Firefox Scraper
+name: VOE Graph Screenshot
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:          # запуск вручную
   schedule:
-    - cron: '15 * * * *'
+    - cron: '0 */3 * * *'     # каждые 3 часа (можно чаще)
 
 jobs:
-  scrape-firefox:
+  screenshot:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
 
-      # 1. WARP (VPN)
-      - name: Setup Warp
-        uses: fscarmen/warp-on-actions@v1.1
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          stack: dual
+          python-version: '3.12'
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # 2. Установка зависимостей системы (Xvfb)
-      - name: Install Sys Deps
+      - name: Install Playwright + stealth
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
+          pip install playwright playwright-stealth
+          python -m playwright install --with-deps chromium
 
-      # 3. Установка библиотек Python
-      - name: Install Python Libs
-        run: pip install -r requirements.txt
+      - name: Take screenshot of the graph
+        run: python voe_scrape.py
 
-      # 4. Установка браузеров Playwright (только Firefox)
-      - name: Install Playwright Browsers
-        run: python -m playwright install firefox
-
-      # 5. Установка зависимостей для браузера (библиотеки Linux)
-      - name: Install Playwright Deps
-        run: sudo npx playwright install-deps firefox
-
-      # 6. ЗАПУСК
-      # xvfb-run создает экран, чтобы Firefox мог отрисоваться
-      - name: Run Script
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python main.py
-
-      - name: Upload Artifacts
-        if: always()
+      - name: Upload screenshot
         uses: actions/upload-artifact@v4
         with:
-          name: firefox-results
-          path: |
-            *.png
-            *.html
+          name: voe-graph-${{ github.run_id }}
+          path: voe-graph-*.png
+          retention-days: 7
