@@ -1,4 +1,4 @@
-name: iPhone Scraper
+name: Check Schedule Cookies
 
 on:
   workflow_dispatch:
@@ -6,13 +6,13 @@ on:
     - cron: '15 * * * *'
 
 jobs:
-  scrape-mobile:
+  scrape:
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v4
-
-      # 1. WARP (VPN) — Без этого мобильная эмуляция не спасет от бана по IP
+      
+      # 1. WARP для смены IP (Обязательно!)
       - name: Setup Warp
         uses: fscarmen/warp-on-actions@v1.1
         with:
@@ -22,25 +22,24 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 2. Установка Chrome и Xvfb (для запуска браузера в графическом режиме)
-      - name: Install System Deps
+      - name: Install Chrome
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable xvfb
+          sudo apt-get install -y google-chrome-stable
 
-      - name: Install Nodriver
+      - name: Install Libs
         run: pip install -r requirements.txt
 
-      # 3. Запуск через xvfb-run
-      # Это создает виртуальный экран 390x844 (размер iPhone)
-      - name: Run Script
-        run: xvfb-run --auto-servernum --server-args="-screen 0 390x844x24" python main.py
+      # 2. Запуск скрипта
+      - name: Run Scraper
+        run: python main.py
 
+      # 3. Сохранение результата
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: iphone-results
+          name: result
           path: |
             *.png
             *.html
