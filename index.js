@@ -1,21 +1,9 @@
 const { connect } = require("puppeteer-real-browser");
 
-// Данные ваших аккаунтов
-const ACCOUNTS = [
-    {
-        id: 'account_1',
-        personal_account: '400910046',
-        eic: '62Z4291896444446'
-    },
-    {
-        id: 'account_2',
-        personal_account: '400720714',
-        eic: '62Z0658084868027'
-    }
-];
+const ACCOUNTS = ['400910046', '400720714'];
 
 async function run() {
-    console.log("=== ЗАПУСК СКРИПТА (2 АККАУНТА) ===");
+    console.log("=== ЗАПУСК СКРИПТА (KEYBOARD NAVIGATION) ===");
 
     const { browser, page } = await connect({
         headless: false,
@@ -26,69 +14,72 @@ async function run() {
 
     try {
         const url = 'https://voe.com.ua/disconnection/detailed';
+        const targetSelector = '.disconnection-detailed-table-container';
 
-        // Проходим по списку аккаунтов
-        for (const acc of ACCOUNTS) {
-            console.log(`\n--- Обработка аккаунта: ${acc.personal_account} ---`);
+        for (const code of ACCOUNTS) {
+            console.log(`\n--- Обробка рахунку: ${code} ---`);
 
-            // 1. Устанавливаем куки (они перезапишут предыдущие)
-            const cookiesToSet = [
-                { name: 'f_search_type', value: '2', domain: '.voe.com.ua' },
-                { name: 'f_personal_account', value: acc.personal_account, domain: '.voe.com.ua' },
-                { name: 'f_eic', value: acc.eic, domain: '.voe.com.ua' }
-            ];
-
-            // Если есть токен Cloudflare в секретах, добавляем его, чтобы не выкинуло
-            if (process.env.CF_COOKIE) {
-                cookiesToSet.push({
-                    name: 'cf_clearance',
-                    value: process.env.CF_COOKIE,
-                    domain: '.voe.com.ua'
-                });
-            }
-
-            await page.setCookie(...cookiesToSet);
-            console.log("Куки обновлены.");
-
-            // 2. Переходим на страницу (или обновляем её)
-            // Использование goto каждый раз гарантирует, что сайт увидит новые куки
+            // 1. Перехід на сайт (або перезавантаження для скидання фокусу)
+            // Це важливо, щоб "Tab x2" завжди спрацьовував однаково
             await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            
+            // Чекаємо трохи, щоб сайт провантажився і став активним
+            await new Promise(r => setTimeout(r, 4000));
 
-            // 3. Ждем загрузки и прохождения Cloudflare
-            console.log("Ждем загрузку страницы...");
-            // Пауза 7 секунд. Если сайт медленный, можно увеличить.
-            await new Promise(r => setTimeout(r, 7000));
+            // 2. Імітація: TAB -> TAB
+            console.log("Натискаємо TAB x2...");
+            await page.keyboard.press('Tab');
+            await new Promise(r => setTimeout(r, 200)); // Невелика затримка як у людини
+            await page.keyboard.press('Tab');
+            await new Promise(r => setTimeout(r, 500));
 
-            // 4. Пытаемся нажать кнопку поиска, чтобы график точно обновился
+            // 3. Вводимо код
+            console.log(`Друкуємо код: ${code}`);
+            // Про всяк випадок очищаємо поле (Ctrl+A -> Backspace), якщо там щось було
+            await page.keyboard.down('Control');
+            await page.keyboard.press('A');
+            await page.keyboard.up('Control');
+            await page.keyboard.press('Backspace');
+            
+            // Вводимо цифри
+            await page.keyboard.type(code, { delay: 100 }); // delay 100мс імітує швидкість друку
+
+            // 4. Натискаємо Enter
+            console.log("Натискаємо Enter...");
+            await page.keyboard.press('Enter');
+
+            // 5. Чекаємо на появу таблиці з графіком
             try {
-                // Ждем кнопку поиска
-                const searchBtnSelector = '#edit-submit-detailed-search';
-                const btn = await page.$(searchBtnSelector);
+                console.log("Очікування таблиці...");
+                // Чекаємо саме на контейнер таблиці
+                await page.waitForSelector(targetSelector, { timeout: 15000 });
                 
-                if (btn) {
-                    console.log("Нажимаем 'Показать'...");
-                    await btn.click();
-                    // Ждем обновления таблицы после клика
-                    await new Promise(r => setTimeout(r, 5000));
-                } else {
-                    console.log("Кнопка поиска не найдена, делаем скрин как есть.");
-                }
-            } catch (e) {
-                console.log("Ошибка клика (не критично):", e.message);
-            }
+                // Даємо ще секунду, щоб стилі промалювалися
+                await new Promise(r => setTimeout(r, 2000));
 
-            // 5. Делаем скриншот
-            const filename = `schedule_${acc.id}.png`;
-            await page.screenshot({ path: filename, fullPage: true });
-            console.log(`✅ Скриншот сохранен: ${filename}`);
+                // 6. Робимо скріншот ТІЛЬКИ ЕЛЕМЕНТА
+                const element = await page.$(targetSelector);
+                if (element) {
+                    const filename = `schedule_${code}.png`;
+                    await element.screenshot({ path: filename });
+                    console.log(`✅ Скріншот елемента збережено: ${filename}`);
+                } else {
+                    console.error("Елемент знайдено, але не вдалося захопити.");
+                }
+
+            } catch (e) {
+                console.error(`❌ Не вдалося знайти таблицю для коду ${code}. Можливо, сайт довго вантажиться або даних немає.`);
+                // Робимо скрін всієї сторінки для налагодження
+                await page.screenshot({ path: `error_${code}.png` });
+            }
         }
 
     } catch (e) {
-        console.error("КРИТИЧЕСКАЯ ОШИБКА:", e);
+        console.error("КРИТИЧНА ПОМИЛКА:", e);
         process.exit(1);
     } finally {
         await browser.close();
-        console.log("Браузер закрыт.");
+        console.log("Роботу завершено.");
         process.exit(0);
     }
 }
