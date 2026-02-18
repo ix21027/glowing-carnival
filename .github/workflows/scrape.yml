@@ -1,59 +1,40 @@
-name: Browserless Scraper
+name: Check VOE Light Schedule
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Позволяет запускать кнопку вручную
   schedule:
-    - cron: '15 * * * *'
+    - cron: '0 * * * *' # Запуск каждый час (опционально)
 
 jobs:
-  scrape-browserless:
+  check-site:
     runs-on: ubuntu-latest
 
-    # ЗАПУСК СЕРВИСА BROWSERLESS
-    services:
-      browserless:
-        image: ghcr.io/browserless/chromium:latest
-        ports:
-          - 3000:3000
-        env:
-          # Включаем скрытный режим
-          STEALTH_EVASIONS: true
-          # Увеличиваем лимиты
-          MAX_CONCURRENT_SESSIONS: 10
-          MAX_QUEUE_LENGTH: 5
-          # Токен не нужен для локального запуска, но можно задать любой
-          TOKEN: "MYTOKEN" 
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 1. Смена IP (WARP) - Без этого Browserless все равно забанят по IP
-      - name: Setup Warp
-        uses: fscarmen/warp-on-actions@v1.1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          stack: dual
+          node-version: '20'
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Install Libs
-        run: pip install -r requirements.txt
+      - name: Install Linux Libraries for Puppeteer
+        # Устанавливаем библиотеки, нужные для Chrome и Xvfb
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgbm-dev gconf-service libasound2 libatk1.0-0 libc6 libccairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
 
-      # 2. Устанавливаем Playwright (только клиент, браузер уже в контейнере)
-      - name: Install Playwright
-        run: python -m playwright install
+      - name: Run Script with Xvfb
+        # xvfb-run создает виртуальный экран
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node index.js
 
-      # 3. Запуск скрипта
-      # Скрипт подключится к localhost:3000 (это наш сервис browserless)
-      - name: Run Script
-        run: python main.py
-
-      - name: Upload Artifacts
-        if: always()
+      - name: Upload Screenshot
         uses: actions/upload-artifact@v4
+        if: always() # Загружать, даже если скрипт упал с ошибкой
         with:
-          name: browserless-results
-          path: |
-            *.png
-            *.html
+          name: site-screenshot
+          path: ./*.png
+          retention-days: 1
