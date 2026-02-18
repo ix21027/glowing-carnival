@@ -1,4 +1,4 @@
-name: Check Schedule Cookies
+name: Firefox Scraper
 
 on:
   workflow_dispatch:
@@ -6,13 +6,13 @@ on:
     - cron: '15 * * * *'
 
 jobs:
-  scrape:
+  scrape-firefox:
     runs-on: ubuntu-latest
     
     steps:
       - uses: actions/checkout@v4
-      
-      # 1. WARP для смены IP (Обязательно!)
+
+      # 1. WARP (VPN)
       - name: Setup Warp
         uses: fscarmen/warp-on-actions@v1.1
         with:
@@ -22,24 +22,34 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Chrome
+      # 2. Установка зависимостей системы (Xvfb)
+      - name: Install Sys Deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          sudo apt-get install -y xvfb
 
-      - name: Install Libs
+      # 3. Установка библиотек Python
+      - name: Install Python Libs
         run: pip install -r requirements.txt
 
-      # 2. Запуск скрипта
-      - name: Run Scraper
-        run: python main.py
+      # 4. Установка браузеров Playwright (только Firefox)
+      - name: Install Playwright Browsers
+        run: python -m playwright install firefox
 
-      # 3. Сохранение результата
+      # 5. Установка зависимостей для браузера (библиотеки Linux)
+      - name: Install Playwright Deps
+        run: sudo npx playwright install-deps firefox
+
+      # 6. ЗАПУСК
+      # xvfb-run создает экран, чтобы Firefox мог отрисоваться
+      - name: Run Script
+        run: xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" python main.py
+
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: result
+          name: firefox-results
           path: |
             *.png
             *.html
