@@ -1,33 +1,59 @@
-name: VOE Graph Screenshot
+name: Browserless Scraper
 
 on:
-  workflow_dispatch:          # запуск вручную
+  workflow_dispatch:
   schedule:
-    - cron: '0 */3 * * *'     # каждые 3 часа (можно чаще)
+    - cron: '15 * * * *'
 
 jobs:
-  screenshot:
+  scrape-browserless:
     runs-on: ubuntu-latest
+
+    # ЗАПУСК СЕРВИСА BROWSERLESS
+    services:
+      browserless:
+        image: ghcr.io/browserless/chromium:latest
+        ports:
+          - 3000:3000
+        env:
+          # Включаем скрытный режим
+          STEALTH_EVASIONS: true
+          # Увеличиваем лимиты
+          MAX_CONCURRENT_SESSIONS: 10
+          MAX_QUEUE_LENGTH: 5
+          # Токен не нужен для локального запуска, но можно задать любой
+          TOKEN: "MYTOKEN" 
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      # 1. Смена IP (WARP) - Без этого Browserless все равно забанят по IP
+      - name: Setup Warp
+        uses: fscarmen/warp-on-actions@v1.1
         with:
-          python-version: '3.12'
+          stack: dual
 
-      - name: Install Playwright + stealth
-        run: |
-          pip install playwright playwright-stealth
-          python -m playwright install --with-deps chromium
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-      - name: Take screenshot of the graph
-        run: python voe_scrape.py
+      - name: Install Libs
+        run: pip install -r requirements.txt
 
-      - name: Upload screenshot
+      # 2. Устанавливаем Playwright (только клиент, браузер уже в контейнере)
+      - name: Install Playwright
+        run: python -m playwright install
+
+      # 3. Запуск скрипта
+      # Скрипт подключится к localhost:3000 (это наш сервис browserless)
+      - name: Run Script
+        run: python main.py
+
+      - name: Upload Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: voe-graph-${{ github.run_id }}
-          path: voe-graph-*.png
-          retention-days: 7
+          name: browserless-results
+          path: |
+            *.png
+            *.html
