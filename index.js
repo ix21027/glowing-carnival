@@ -64,7 +64,7 @@ async function run() {
                 // 6. Чекаємо появи таблиці (графіка)
                 console.log("Очікування таблиці результатів...");
                 // Збільшив таймаут до 20 сек, бо сайт може думати довго
-                await page.waitForSelector(tableSelector, { timeout: 20000 });
+                await page.waitForSelector(tableSelector, { timeout: 7000 });
                 
                 // Даємо ще секунду на промальовування
                 await new Promise(r => setTimeout(r, 1000));
