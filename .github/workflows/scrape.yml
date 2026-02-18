@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '25.6.1'
 
       - name: Install Dependencies
         run: npm install
@@ -24,9 +24,7 @@ jobs:
       - name: Install Linux Libraries for Puppeteer
         # Устанавливаем библиотеки, нужные для Chrome и Xvfb
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb libgbm-dev gconf-service libasound2 libatk1.0-0 libc6 libccairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
-
+          apt-get update && apt-get install -y wget gnupg ca-certificates apt-transport-https chromium chromium-driver xvfb && rm -rf /var/lib/apt/lists/*
       - name: Run Script with Xvfb
         # xvfb-run создает виртуальный экран
         run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node index.js
