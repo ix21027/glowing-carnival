@@ -1,0 +1,10 @@
+{
+  "name": "voe-monitor",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "puppeteer-real-browser": "^1.4.4"
+  }
+}
