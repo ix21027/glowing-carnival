@@ -31,11 +31,14 @@ async function run() {
                 console.log("Чекаємо завантаження сайту...");
                 await new Promise(r => setTimeout(r, 5000));
 
+await page.screenshot({ path: `error1_${account}.png` });
                 // 2. Клік по вибору типу пошуку
                 console.log("Клікаємо на тип пошуку...");
                 await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
                 await page.click(radioLabelSelector);
                 
+await page.screenshot({ path: `error2_${account}.png` });
+            
                 // Пауза, щоб сайт відреагував на клік
                 await new Promise(r => setTimeout(r, 2000));
 
@@ -45,7 +48,7 @@ async function run() {
                 await new Promise(r => setTimeout(r, 200));
                 await page.keyboard.press('Tab');
                 await new Promise(r => setTimeout(r, 200));
-
+await page.screenshot({ path: `error3_${account}.png` });
                 // 4. Вводимо номер рахунку
                 console.log(`Вводимо рахунок: ${account}`);
                 // Страховка: очищаємо поле перед введенням
@@ -56,7 +59,7 @@ async function run() {
                 
                 // Друкуємо цифри
                 await page.keyboard.type(account, { delay: 100 });
-
+await page.screenshot({ path: `error4_${account}.png` });
                 // 5. Натискаємо Enter
                 console.log("Натискаємо Enter...");
                 await page.keyboard.press('Enter');
@@ -68,7 +71,7 @@ async function run() {
                 
                 // Даємо ще секунду на промальовування
                 await new Promise(r => setTimeout(r, 1000));
-
+await page.screenshot({ path: `error5_${account}.png` });
                 // 7. Робимо скріншот ТІЛЬКИ ЕЛЕМЕНТА
                 const element = await page.$(tableSelector);
                 if (element) {
