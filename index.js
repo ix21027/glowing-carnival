@@ -81,8 +81,8 @@ async function run() {
     const { browser, page } = await connect({
         headless: false,
         turnstile: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--window-size=1280,720"],
-        connectOption: { defaultViewport: { width: 1280, height: 720 } }
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--start-maximazed"],
+        connectOption: { defaultViewport: null }
     });
 
     try {
@@ -90,7 +90,6 @@ async function run() {
         
         const radioLabelSelector = "div.form-item.form__item.form__item--radio.form__item--search-type.form__item--radio--2 > label";
         const inputSelector = 'input[data-drupal-selector="edit-personal-account"]'; 
-        const submitButtonSelector = '#edit-submit-detailed-search';
         const tableSelector = ".disconnection-detailed-table-container";
 
         for (const account of ACCOUNTS) {
@@ -117,7 +116,7 @@ async function run() {
                 await page.type(inputSelector, account); 
 
                 // 4. Пошук
-                await page.click(submitButtonSelector);
+                await page.keyboard.press('Enter');
 
                 // 5. Очікування таблиці
                 await page.waitForSelector(tableSelector, { timeout: 20000 });
