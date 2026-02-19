@@ -81,7 +81,7 @@ async function run() {
     const { browser, page } = await connect({
         headless: false,
         turnstile: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--start-maximazed"],
+        args: ["--no-sandbox", "--disable-setuid-sandbox", "--start-maximized"],
         connectOption: { defaultViewport: null }
     });
 
@@ -114,13 +114,14 @@ async function run() {
                 await page.keyboard.press('Backspace');
                 
                 await page.type(inputSelector, account); 
-
+ 
+                await new Promise(r => setTimeout(r, 2000));
                 // 4. Пошук
                 await page.keyboard.press('Enter');
 
                 // 5. Очікування таблиці
                 await page.waitForSelector(tableSelector, { timeout: 20000 });
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 5000));
 
                 // === ПЕРЕВІРКА ЗМІН ===
                 const currentText = await page.$eval(tableSelector, el => el.innerText.trim());
@@ -144,7 +145,7 @@ async function run() {
 
                     // Формування підпису
                     const nameLabel = ACCOUNT_NAMES[account] ? ACCOUNT_NAMES[account] : account;
-                    const caption = `💡 *Графік оновлено!*\n📍 Об'єкт: *${nameLabel}*\n🕒 Час: ${new Date().toLocaleString('uk-UA')}`;
+                   const caption = `💡 *Графік оновлено!*\n📍 Об'єкт: *${nameLabel}*\n🕒 Час: ${new Date().toLocaleString('uk-UA')}`;
                     
                     await sendTelegramPhoto(caption, filename);
 
