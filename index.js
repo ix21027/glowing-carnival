@@ -31,6 +31,11 @@ async function sendTelegramPhoto(caption, filePath) {
 
     try {
         const fileBuffer = fs.readFileSync(filePath);
+        const kyivTimeStr = new Date().toLocaleString("en-US", { timeZone: "Europe/Kyiv" });
+        const currentHour = new Date(kyivTimeStr).getHours(); // Поверне число від 0 до 23
+
+        // 2. Перевіряємо, чи зараз ніч (більше або дорівнює 20:00 АБО менше 8:00)
+        const isNightTime = currentHour >= 20 || currentHour < 8;
 
         const sendPromises = TG_CHAT_IDS.map(async (chatId) => {
             try {
@@ -38,6 +43,9 @@ async function sendTelegramPhoto(caption, filePath) {
                 formData.append('chat_id', chatId);
                 formData.append('caption', caption);
                 formData.append('parse_mode', 'Markdown');
+                if (isNightTime) {
+                    formData.append('disable_notification', 'true');
+                }
                 
                 const blob = new Blob([fileBuffer], { type: 'image/png' });
                 formData.append('photo', blob, 'screenshot.png');
@@ -87,19 +95,17 @@ async function run() {
         const inputSelector = 'input[data-drupal-selector="edit-personal-account"]'; 
         const tableSelector = ".disconnection-detailed-table-container";
 
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        await new Promise(r => setTimeout(r, 15000));
+
+        // 2. Вибір типу пошуку
+        await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
+        await page.click(radioLabelSelector);
+
         for (const account of ACCOUNTS) {
             console.log(`\n--- Обробка рахунку: ${account} ---`);
 
             try {
-                // 1. Навігація (всередині циклу для надійності)
-                await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-                await new Promise(r => setTimeout(r, 15000));
-
-                // 2. Вибір типу пошуку
-                await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
-                await page.click(radioLabelSelector);
-                
-                // 3. Введення рахунку
                 await page.waitForSelector(inputSelector, { timeout: 10000 });
                 await page.click(inputSelector);
                 
