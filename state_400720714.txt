@@ -29,24 +29,24 @@
 														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
 														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
 														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="04:00–05:00" aria-label="04:00–05:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="05:00–06:00" aria-label="05:00–06:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
-														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="08:00–09:00" aria-label="08:00–09:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="09:00–10:00" aria-label="09:00–10:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="10:00–11:00" aria-label="10:00–11:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="11:00–12:00" aria-label="11:00–12:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
-														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="14:00–15:00" aria-label="14:00–15:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="15:00–16:00" aria-label="15:00–16:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="16:00–17:00" aria-label="16:00–17:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="17:00–18:00" aria-label="17:00–18:00"></div></div>
 														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
 														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
 														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
 														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="22:00–23:00" aria-label="22:00–23:00"></div></div>
-														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="23:00–00:00" aria-label="23:00–00:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
 									
