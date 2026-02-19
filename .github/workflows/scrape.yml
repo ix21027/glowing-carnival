@@ -36,7 +36,7 @@ jobs:
       - name: Run Script
         env:
           CF_COOKIE: ${{ secrets.CF_COOKIE }}
-        run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" node index.js
+        run: xvfb-run --auto-servernum --server-args="-screen 0 786x1080x24" node index.js
 
       # === НОВИЙ КРОК: ЗБЕРЕЖЕННЯ СТАНУ ===
       - name: Commit and Push Changes
