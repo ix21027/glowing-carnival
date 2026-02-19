@@ -1,26 +1,52 @@
-Часові проміжки
-00-01
-01-02
-02-03
-03-04
-04-05
-05-06
-06-07
-07-08
-08-09
-09-10
-10-11
-11-12
-12-13
-13-14
-14-15
-15-16
-16-17
-17-18
-18-19
-19-20
-20-21
-21-22
-22-23
-23-24
-Чт 19.02
+
+							<div class="disconnection-detailed-table-cell head">Часові проміжки</div>
+							<div class="disconnection-detailed-table-cell head grey">00-01</div>
+							<div class="disconnection-detailed-table-cell head">01-02</div>
+							<div class="disconnection-detailed-table-cell head grey">02-03</div>
+							<div class="disconnection-detailed-table-cell head">03-04</div>
+							<div class="disconnection-detailed-table-cell head grey">04-05</div>
+							<div class="disconnection-detailed-table-cell head">05-06</div>
+							<div class="disconnection-detailed-table-cell head grey">06-07</div>
+							<div class="disconnection-detailed-table-cell head">07-08</div>
+							<div class="disconnection-detailed-table-cell head grey">08-09</div>
+							<div class="disconnection-detailed-table-cell head">09-10</div>
+							<div class="disconnection-detailed-table-cell head grey">10-11</div>
+							<div class="disconnection-detailed-table-cell head">11-12</div>
+							<div class="disconnection-detailed-table-cell head grey">12-13</div>
+							<div class="disconnection-detailed-table-cell head">13-14</div>
+							<div class="disconnection-detailed-table-cell head grey">14-15</div>
+							<div class="disconnection-detailed-table-cell head">15-16</div>
+							<div class="disconnection-detailed-table-cell head grey">16-17</div>
+							<div class="disconnection-detailed-table-cell head">17-18</div>
+							<div class="disconnection-detailed-table-cell head grey">18-19</div>
+							<div class="disconnection-detailed-table-cell head">19-20</div>
+							<div class="disconnection-detailed-table-cell head grey">20-21</div>
+							<div class="disconnection-detailed-table-cell head">21-22</div>
+							<div class="disconnection-detailed-table-cell head grey">22-23</div>
+							<div class="disconnection-detailed-table-cell head">23-24</div>
+																																		<div class="disconnection-detailed-table-cell legend  grey day_col current_day">чт 19.02</div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="04:00–05:00" aria-label="04:00–05:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="05:00–06:00" aria-label="05:00–06:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="08:00–09:00" aria-label="08:00–09:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="09:00–10:00" aria-label="09:00–10:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="10:00–11:00" aria-label="10:00–11:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="11:00–12:00" aria-label="11:00–12:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="14:00–15:00" aria-label="14:00–15:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="15:00–16:00" aria-label="15:00–16:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="16:00–17:00" aria-label="16:00–17:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="17:00–18:00" aria-label="17:00–18:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  no_disconnection current_day"><div class="hour_block"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="20:00–21:00" aria-label="20:00–21:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="21:00–22:00" aria-label="21:00–22:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="22:00–23:00" aria-label="22:00–23:00"></div></div>
+														<div class="disconnection-detailed-table-cell cell  has_disconnection confirm_1 full_hour current_day"><div class="hour_block has_any" title="23:00–00:00" aria-label="23:00–00:00"></div></div>
+									
