@@ -1,10 +1,10 @@
 const { connect } = require("puppeteer-real-browser");
 
-// Список рахунків для перевірки
+// Ваші особові рахунки
 const ACCOUNTS = ['400910046', '400720714'];
 
 async function run() {
-    console.log("=== ЗАПУСК СКРИПТА (CLICK + KEYBOARD) ===");
+    console.log("=== ЗАПУСК СКРИПТА (DRUPAL SELECTOR) ===");
 
     const { browser, page } = await connect({
         headless: false,
@@ -15,76 +15,72 @@ async function run() {
 
     try {
         const url = 'https://voe.com.ua/disconnection/detailed';
-        // Селектор радіо-кнопки (пошук по рахунку)
+        
+        // 1. Селектор радіо-кнопки (Тип пошуку: Особовий рахунок)
+        // Шукаємо label, який відповідає за вибір особового рахунку
         const radioLabelSelector = "div.form-item.form__item.form__item--radio.form__item--search-type.form__item--radio--2 > label";
-        // Селектор таблиці з результатами
+        
+        // 2. Селектор поля вводу (Беремо з вашого HTML)
+        // Використовуємо атрибут data-drupal-selector, бо ID динамічний
+        const inputSelector = 'input[data-drupal-selector="edit-personal-account"]';
+        
+        // 3. Селектор кнопки "Пошук"
+        const submitButtonSelector = '#edit-submit-detailed-search';
+        
+        // 4. Селектор таблиці результатів
         const tableSelector = ".disconnection-detailed-table-container";
 
         for (const account of ACCOUNTS) {
             console.log(`\n--- Обробка рахунку: ${account} ---`);
 
             try {
-                // 1. Переходимо на сайт
+                // А. Переходимо на сайт
                 await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-                
-                // Чекаємо завантаження
-                console.log("Чекаємо завантаження сайту...");
-                await new Promise(r => setTimeout(r, 5000));
+                await new Promise(r => setTimeout(r, 3000));
 
-await page.screenshot({ path: `error1_${account}.png` });
-                // 2. Клік по вибору типу пошуку
-                console.log("Клікаємо на тип пошуку...");
+                // Б. Клікаємо на тип пошуку "Особовий рахунок"
+                console.log("Клікаємо на радіо-кнопку...");
                 await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
                 await page.click(radioLabelSelector);
-                
-await page.screenshot({ path: `error2_${account}.png` });
-            
-                // Пауза, щоб сайт відреагував на клік
-                await new Promise(r => setTimeout(r, 2000));
 
-                // 3. Імітація: TAB -> TAB (перехід до поля вводу)
-                console.log("Натискаємо TAB x2...");
-                await page.keyboard.press('Tab');
-                await new Promise(r => setTimeout(r, 200));
-                await page.keyboard.press('Tab');
-                await new Promise(r => setTimeout(r, 200));
-await page.screenshot({ path: `error3_${account}.png` });
-                // 4. Вводимо номер рахунку
+                // В. Чекаємо, поки з'явиться потрібний інпут
+                // Сайт може трохи "подумати" перед тим як підмінити поле
+                console.log("Чекаємо на поле вводу рахунку...");
+                await page.waitForSelector(inputSelector, { timeout: 10000 });
+                
+                // Г. Вводимо дані
                 console.log(`Вводимо рахунок: ${account}`);
-                // Страховка: очищаємо поле перед введенням
+                await page.click(inputSelector); // Фокус на полі
+                
+                // Очищення поля (про всяк випадок)
                 await page.keyboard.down('Control');
                 await page.keyboard.press('A');
                 await page.keyboard.up('Control');
                 await page.keyboard.press('Backspace');
                 
-                // Друкуємо цифри
-                await page.keyboard.type(account, { delay: 100 });
-await page.screenshot({ path: `error4_${account}.png` });
-                // 5. Натискаємо Enter
-                console.log("Натискаємо Enter...");
-                await page.keyboard.press('Enter');
+                // Введення цифр
+                await page.type(inputSelector, account, { delay: 100 });
 
-                // 6. Чекаємо появи таблиці (графіка)
-                console.log("Очікування таблиці результатів...");
-                // Збільшив таймаут до 20 сек, бо сайт може думати довго
-                await page.waitForSelector(tableSelector, { timeout: 7000 });
-                
-                // Даємо ще секунду на промальовування
+                // Д. Натискаємо кнопку пошуку
+                console.log("Натискаємо кнопку 'Пошук'...");
+                await page.click(submitButtonSelector);
+
+                // Е. Чекаємо результатів
+                console.log("Очікування таблиці...");
+                await page.waitForSelector(tableSelector, { timeout: 20000 });
                 await new Promise(r => setTimeout(r, 1000));
-await page.screenshot({ path: `error5_${account}.png` });
-                // 7. Робимо скріншот ТІЛЬКИ ЕЛЕМЕНТА
+
+                // Є. Робимо скріншот елемента
                 const element = await page.$(tableSelector);
                 if (element) {
                     const filename = `schedule_${account}.png`;
                     await element.screenshot({ path: filename });
                     console.log(`✅ Скріншот збережено: ${filename}`);
-                } else {
-                    console.error("Елемент знайдено, але виникла помилка при знімку.");
                 }
 
             } catch (innerError) {
                 console.error(`❌ Помилка для рахунку ${account}:`, innerError.message);
-                // Робимо скрін помилки, щоб зрозуміти, що пішло не так
+                // Робимо скрін помилки
                 await page.screenshot({ path: `error_${account}.png` });
             }
         }
@@ -94,7 +90,7 @@ await page.screenshot({ path: `error5_${account}.png` });
         process.exit(1);
     } finally {
         await browser.close();
-        console.log("Браузер закрито.");
+        console.log("Роботу завершено.");
         process.exit(0);
     }
 }
