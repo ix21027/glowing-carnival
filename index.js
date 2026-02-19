@@ -49,7 +49,7 @@ await page.screenshot({ path: `error2_${account}.png` });
                 await page.keyboard.press('Backspace');
                 
                 // Введення
-                await page.type(inputSelector, account, { delay: 100 });
+                await page.type(inputSelector, account);
 await page.screenshot({ path: `error3_${account}.png` });
                 // 4. Пошук (Enter)
                 await page.keyboard.press('Enter');
