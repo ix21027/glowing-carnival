@@ -118,6 +118,16 @@ async function run() {
                 await page.waitForSelector(tableSelector, { timeout: 20000 });
                 await new Promise(r => setTimeout(r, 5000));
 
+                await page.evaluate(() => {
+                // Цей код виконується всередині браузера
+                    const selector = "body > div.dialog-off-canvas-main-canvas > div > header > div.site-header-middle > button";
+                    const element = document.querySelector(selector);
+    
+                    if (element) {
+                        element.remove();
+                    }
+                });
+            
                 // === ПЕРЕВІРКА ЗМІН ===
                 const currentText = await page.$eval(tableSelector, el => el.innerText.trim());
                 
