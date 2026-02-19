@@ -32,6 +32,7 @@ async function run() {
                 // Чекаємо трохи прогрузки скриптів
                 await new Promise(r => setTimeout(r, 3000));
 
+await page.screenshot({ path: `error_${account}.png` });
                 // 2. Клік радіо
                 await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
                 await page.click(radioLabelSelector);
@@ -39,6 +40,7 @@ async function run() {
                 // 3. Чекаємо появи поля вводу (воно може з'являтися з затримкою після кліку)
                 await page.waitForSelector(inputSelector, { timeout: 10000 });
                 
+await page.screenshot({ path: `error_${account}.png` });
                 // Фокус та очищення
                 await page.click(inputSelector);
                 await page.keyboard.down('Control');
@@ -48,15 +50,15 @@ async function run() {
                 
                 // Введення
                 await page.type(inputSelector, account, { delay: 100 });
-
+await page.screenshot({ path: `error_${account}.png` });
                 // 4. Пошук (Enter)
                 await page.keyboard.press('Enter');
-
+await page.screenshot({ path: `error_${account}.png` });
                 // 5. Очікування таблиці
                 // Тут ми збільшуємо час очікування, бо сайт може думати
                 await page.waitForSelector(tableSelector, { timeout: 20000 });
                 await new Promise(r => setTimeout(r, 3000)); // Даємо час JS оновити дані всередині таблиці
-
+await page.screenshot({ path: `error_${account}.png` });
                 // === ЛОГІКА ОТРИМАННЯ ТЕКСТУ ===
                 const currentText = await page.$eval(tableSelector, el => el.innerText.trim());
                 
