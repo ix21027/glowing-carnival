@@ -4,7 +4,7 @@ on:
   push:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *' # Щогодини
+    - cron: '0/17 5-19 * * *' # Щогодини
 
 permissions:
   contents: write # ДОЗВІЛ НА ЗАПИС В РЕПОЗИТОРІЙ
@@ -38,7 +38,6 @@ jobs:
           LINK: ${{ secrets.LINK }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }} 
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }} 
-          IDS: ${{ secrets.IDS }}
           ACCOUNT_NAMES_MAP: ${{ secrets.ACCOUNT_NAMES_MAP }}
         run: xvfb-run --auto-servernum --server-args="-screen 0 786x1080x24" node index.js
 
