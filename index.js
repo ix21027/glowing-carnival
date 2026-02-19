@@ -133,7 +133,7 @@ async function run() {
                 
                 // 2. Видаляємо всі пробіли, переноси рядків (\n), табуляцію (\t)
                 // Це перетворить "<div>  text  </div>" на "<div>text</div>"
-                const currentContent = rawHTML.replace(/\s+/g, '');
+                const currentText = rawHTML.replace(/\s+/g, '');
                 
                 
                 const stateFile = `state_${account}.txt`;
