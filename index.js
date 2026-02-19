@@ -156,7 +156,7 @@ async function run() {
                     // Формування підпису
                     const nameLabel = ACCOUNT_NAMES[account] ? ACCOUNT_NAMES[account] : account;
                    
-                    await sendTelegramPhoto(caption, nameLabel);
+                    await sendTelegramPhoto(nameLabel, filename);
 
                 } else {
                     console.log(`✅ Розклад без змін для ${account}.`);
