@@ -9,11 +9,6 @@ const TG_CHAT_IDS = process.env.TELEGRAM_CHAT_ID
     ? process.env.TELEGRAM_CHAT_ID.split(',').map(id => id.trim()).filter(id => id) 
     : [];
 
-// Отримуємо список акаунтів
-const ACCOUNTS = process.env.IDS 
-    ? process.env.IDS.split(',').map(id => id.trim()).filter(id => id)
-    : [];
-
 // --- ПАРСИНГ НАЗВ АКАУНТІВ З ENV ---
 // Формат рядка: "ID:NAME,ID:NAME"
 const ACCOUNT_NAMES = {};
@@ -22,11 +17,11 @@ if (process.env.ACCOUNT_NAMES_MAP) {
     pairs.forEach(pair => {
         const [id, name] = pair.split(':');
         if (id && name) {
-            ACCOUNT_NAMES[id.trim()] = name.trim();
+            ACCOUNT_NAMES[Number(id.trim())] = name.trim();
         }
     });
 }
-
+const ACCOUNTS = Object.keys(ACCOUNT_NAMES);
 // --- ФУНКЦІЯ ВІДПРАВКИ В TELEGRAM ---
 async function sendTelegramPhoto(caption, filePath) {
     if (!TG_TOKEN || TG_CHAT_IDS.length === 0) {
