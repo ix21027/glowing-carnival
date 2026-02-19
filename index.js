@@ -104,7 +104,7 @@ async function run() {
 
         for (const account of ACCOUNTS) {
             console.log(`\n--- Обробка рахунку: ${account} ---`);
-
+            await new Promise(r => setTimeout(r, 5000));
             try {
                 await page.waitForSelector(inputSelector, { timeout: 10000 });
                 await page.click(inputSelector);
