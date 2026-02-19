@@ -129,7 +129,8 @@ async function run() {
                 });
             
                 // === ПЕРЕВІРКА ЗМІН ===
-                const currentText = await page.$eval(tableSelector, el => el.innerHTML);
+                const currentText = await page.$eval(tableSelector, el => el.innerHTML.replace(/\s+/g, ''));
+
                 
                 const stateFile = `state_${account}.txt`;
                 let previousText = "";
@@ -150,9 +151,8 @@ async function run() {
 
                     // Формування підпису
                     const nameLabel = ACCOUNT_NAMES[account] ? ACCOUNT_NAMES[account] : account;
-                   const caption = `💡 *Графік оновлено!*\n📍 Об'єкт: *${nameLabel}*\n🕒 Час: ${new Date().toLocaleString('uk-UA')}`;
-                    
-                    await sendTelegramPhoto(caption, filename);
+                   
+                    await sendTelegramPhoto(caption, nameLabel);
 
                 } else {
                     console.log(`✅ Розклад без змін для ${account}.`);
