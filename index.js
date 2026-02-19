@@ -129,8 +129,12 @@ async function run() {
                 });
             
                 // === ПЕРЕВІРКА ЗМІН ===
-                const currentText = await page.$eval(tableSelector, el => el.innerHTML.replace(/\s+/g, ''));
-
+                const rawHTML = await page.$eval(tableSelector, el => el.innerHTML);
+                
+                // 2. Видаляємо всі пробіли, переноси рядків (\n), табуляцію (\t)
+                // Це перетворить "<div>  text  </div>" на "<div>text</div>"
+                const currentContent = rawHTML.replace(/\s+/g, '');
+                
                 
                 const stateFile = `state_${account}.txt`;
                 let previousText = "";
