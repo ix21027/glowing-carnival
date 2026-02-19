@@ -129,7 +129,7 @@ async function run() {
                 });
             
                 // === ПЕРЕВІРКА ЗМІН ===
-                const currentText = await page.$eval(tableSelector, el => el.innerText.trim());
+                const currentText = await page.$eval(tableSelector, el => el.innerHTML);
                 
                 const stateFile = `state_${account}.txt`;
                 let previousText = "";
