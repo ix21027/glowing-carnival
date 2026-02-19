@@ -1,46 +1,82 @@
 const { connect } = require("puppeteer-real-browser");
 const fs = require('fs');
 
-// Ваші налаштування (краще брати з env, але можна і тут для тесту)
+// --- НАЛАШТУВАННЯ TELEGRAM ---
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TG_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-const ACCOUNTS = ['400910046', '400720714'];
+// Отримуємо ID чатів (масив)
+const TG_CHAT_IDS = process.env.TELEGRAM_CHAT_ID 
+    ? process.env.TELEGRAM_CHAT_ID.split(',').map(id => id.trim()).filter(id => id) 
+    : [];
+
+// Отримуємо список акаунтів
+const ACCOUNTS = process.env.IDS 
+    ? process.env.IDS.split(',').map(id => id.trim()).filter(id => id)
+    : [];
+
+// --- ПАРСИНГ НАЗВ АКАУНТІВ З ENV ---
+// Формат рядка: "ID:NAME,ID:NAME"
+const ACCOUNT_NAMES = {};
+if (process.env.ACCOUNT_NAMES_MAP) {
+    const pairs = process.env.ACCOUNT_NAMES_MAP.split(',');
+    pairs.forEach(pair => {
+        const [id, name] = pair.split(':');
+        if (id && name) {
+            ACCOUNT_NAMES[id.trim()] = name.trim();
+        }
+    });
+}
 
 // --- ФУНКЦІЯ ВІДПРАВКИ В TELEGRAM ---
 async function sendTelegramPhoto(caption, filePath) {
-    if (!TG_TOKEN || !TG_CHAT_ID) {
-        console.log("⚠️ Telegram токен або Chat ID не задані. Пропускаємо відправку.");
+    if (!TG_TOKEN || TG_CHAT_IDS.length === 0) {
+        console.log("⚠️ Telegram налаштування відсутні. Пропускаємо.");
         return;
     }
 
     try {
-        const formData = new FormData();
-        formData.append('chat_id', TG_CHAT_ID);
-        formData.append('caption', caption);
-        // Читаємо файл і додаємо його у форму
         const fileBuffer = fs.readFileSync(filePath);
-        const blob = new Blob([fileBuffer], { type: 'image/png' });
-        formData.append('photo', blob, 'screenshot.png');
 
-        const response = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
-            method: 'POST',
-            body: formData
+        const sendPromises = TG_CHAT_IDS.map(async (chatId) => {
+            try {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('caption', caption);
+                formData.append('parse_mode', 'Markdown');
+                
+                const blob = new Blob([fileBuffer], { type: 'image/png' });
+                formData.append('photo', blob, 'screenshot.png');
+
+                const response = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.ok) {
+                    console.log(`✅ [Telegram] Фото відправлено для ID: ${chatId}`);
+                } else {
+                    console.error(`❌ [Telegram] Помилка для ID ${chatId}:`, data.description);
+                }
+            } catch (err) {
+                console.error(`❌ [Telegram] Збій відправки для ID ${chatId}:`, err.message);
+            }
         });
 
-        const data = await response.json();
-        if (data.ok) {
-            console.log("✅ Фото успішно відправлено в Telegram!");
-        } else {
-            console.error("❌ Помилка Telegram API:", data.description);
-        }
+        await Promise.all(sendPromises);
+
     } catch (error) {
-        console.error("❌ Помилка при відправці в Telegram:", error.message);
+        console.error("❌ Загальна помилка при підготовці до відправки:", error.message);
     }
 }
 
 async function run() {
-    console.log("=== ЗАПУСК СКРИПТА (MONITORING + TELEGRAM) ===");
+    console.log("=== ЗАПУСК СКРИПТА (FINAL) ===");
+
+    if (ACCOUNTS.length === 0) {
+        console.error("❌ ПОМИЛКА: Не вказано жодного рахунку в змінній 'IDS'!");
+        process.exit(1);
+    }
 
     const { browser, page } = await connect({
         headless: false,
@@ -50,9 +86,8 @@ async function run() {
     });
 
     try {
-        const url = 'https://voe.com.ua/disconnection/detailed';
+        const url = process.env.LINK;
         
-        // Селектори
         const radioLabelSelector = "div.form-item.form__item.form__item--radio.form__item--search-type.form__item--radio--2 > label";
         const inputSelector = 'input[data-drupal-selector="edit-personal-account"]'; 
         const submitButtonSelector = '#edit-submit-detailed-search';
@@ -62,11 +97,11 @@ async function run() {
             console.log(`\n--- Обробка рахунку: ${account} ---`);
 
             try {
-                // 1. Навігація
+                // 1. Навігація (всередині циклу для надійності)
                 await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-                await new Promise(r => setTimeout(r, 13000));
+                await new Promise(r => setTimeout(r, 15000));
 
-                // 2. Клік радіо
+                // 2. Вибір типу пошуку
                 await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
                 await page.click(radioLabelSelector);
                 
@@ -79,14 +114,14 @@ async function run() {
                 await page.keyboard.up('Control');
                 await page.keyboard.press('Backspace');
                 
-                await page.type(inputSelector, account); // Прибрали delay для швидкості
+                await page.type(inputSelector, account); 
 
                 // 4. Пошук
                 await page.click(submitButtonSelector);
 
                 // 5. Очікування таблиці
                 await page.waitForSelector(tableSelector, { timeout: 20000 });
-                await new Promise(r => setTimeout(r, 1000));
+                await new Promise(r => setTimeout(r, 2000));
 
                 // === ПЕРЕВІРКА ЗМІН ===
                 const currentText = await page.$eval(tableSelector, el => el.innerText.trim());
@@ -101,17 +136,17 @@ async function run() {
                 if (currentText !== previousText) {
                     console.log(`⚠️ УВАГА: РОЗКЛАД ЗМІНИВСЯ для ${account}!`);
                     
-                    // Зберігаємо новий стан
                     fs.writeFileSync(stateFile, currentText);
                     
-                    // Робимо скріншот
                     const element = await page.$(tableSelector);
                     const filename = `schedule_${account}_CHANGED.png`;
                     await element.screenshot({ path: filename });
                     console.log(`📸 Скріншот збережено: ${filename}`);
 
-                    // === ВІДПРАВКА В TELEGRAM ===
-                    const caption = `💡 Увага! Змінився графік для рахунку ${account}.\nДата: ${new Date().toLocaleString('uk-UA')}`;
+                    // Формування підпису
+                    const nameLabel = ACCOUNT_NAMES[account] ? ACCOUNT_NAMES[account] : account;
+                    const caption = `💡 *Графік оновлено!*\n📍 Об'єкт: *${nameLabel}*\n🕒 Час: ${new Date().toLocaleString('uk-UA')}`;
+                    
                     await sendTelegramPhoto(caption, filename);
 
                 } else {
