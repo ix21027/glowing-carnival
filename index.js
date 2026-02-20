@@ -22,6 +22,7 @@ if (process.env.ACCOUNT_NAMES_MAP) {
     });
 }
 const ACCOUNTS = Object.keys(ACCOUNT_NAMES);
+
 // --- ФУНКЦІЯ ВІДПРАВКИ В TELEGRAM ---
 async function sendTelegramPhoto(caption, filePath) {
     if (!TG_TOKEN || TG_CHAT_IDS.length === 0) {
@@ -38,31 +39,42 @@ async function sendTelegramPhoto(caption, filePath) {
         const isNightTime = currentHour >= 20 || currentHour < 8;
 
         const sendPromises = TG_CHAT_IDS.map(async (chatId) => {
-            try {
-                const formData = new FormData();
-                formData.append('chat_id', chatId);
-                formData.append('caption', caption);
-                formData.append('parse_mode', 'Markdown');
-                if (isNightTime) {
-                    formData.append('disable_notification', 'true');
-                }
-                
-                const blob = new Blob([fileBuffer], { type: 'image/png' });
-                formData.append('photo', blob, 'screenshot.png');
+            let attempts = 3; // Робимо 3 спроби відправки
+            
+            while (attempts > 0) {
+                try {
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('caption', caption);
+                    formData.append('parse_mode', 'Markdown');
+                    if (isNightTime) {
+                        formData.append('disable_notification', 'true');
+                    }
+                    
+                    const blob = new Blob([fileBuffer], { type: 'image/png' });
+                    formData.append('photo', blob, 'screenshot.png');
 
-                const response = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
-                    method: 'POST',
-                    body: formData
-                });
+                    const response = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    });
 
-                const data = await response.json();
-                if (data.ok) {
-                    console.log(`✅ [Telegram] Фото відправлено для ID: ${chatId}`);
-                } else {
-                    console.error(`❌ [Telegram] Помилка для ID ${chatId}:`, data.description);
+                    const data = await response.json();
+                    if (data.ok) {
+                        console.log(`✅ [Telegram] Фото відправлено для ID: ${chatId}`);
+                        break;
+                    } else {
+                        console.error(`❌ [Telegram] Помилка для ID ${chatId}:`, data.description);
+                        break;
+                    }
+                } catch (err) {
+                    attempts--;
+                    console.error(`❌ [Telegram] Збій відправки для ID ${chatId}:`, err.message);
+                    if (attempts > 0) {
+                        console.log("⏳ Чекаємо 3 секунди перед повторною спробою...");
+                        await new Promise(res => setTimeout(res, 3000));
+                    }
                 }
-            } catch (err) {
-                console.error(`❌ [Telegram] Збій відправки для ID ${chatId}:`, err.message);
             }
         });
 

@@ -4,7 +4,7 @@ on:
   push:
   workflow_dispatch:
   schedule:
-    - cron: '10,30,50 5-19 * * *' # Щогодини
+    - cron: '10,30,50 3-20 * * *' # Щогодини
 
 permissions:
   contents: write # ДОЗВІЛ НА ЗАПИС В РЕПОЗИТОРІЙ
