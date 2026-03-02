@@ -1,10 +1,10 @@
 name: Check VOE Light Schedule
 
 on:
-  push:
+  #push:
   workflow_dispatch:
-  schedule:
-    - cron: '10,30,50 3-20 * * *' # Щогодини
+  #schedule:
+  #  - cron: '10,30,50 3-20 * * *' # Щогодини
 
 permissions:
   contents: write # ДОЗВІЛ НА ЗАПИС В РЕПОЗИТОРІЙ
