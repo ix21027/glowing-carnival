@@ -111,7 +111,7 @@ async function run() {
         await new Promise(r => setTimeout(r, 15000));
 
         // 2. Вибір типу пошуку
-        await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
+        await page.waitForSelector(radioLabelSelector, { timeout: 50000 });
         await page.click(radioLabelSelector);
 
         for (const account of ACCOUNTS) {
