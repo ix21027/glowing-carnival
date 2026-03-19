@@ -111,7 +111,7 @@ async function run() {
         await new Promise(r => setTimeout(r, 15000));
 
         // 2. Вибір типу пошуку
-        await page.waitForSelector(radioLabelSelector, { timeout: 50000 });
+        await page.waitForSelector(radioLabelSelector, { timeout: 10000 });
         await page.click(radioLabelSelector);
 
         for (const account of ACCOUNTS) {
@@ -188,6 +188,7 @@ async function run() {
 
     } catch (e) {
         console.error("КРИТИЧНА ПОМИЛКА:", e);
+        await page.screenshot("0.png");
         process.exit(1);
     } finally {
         await browser.close();
