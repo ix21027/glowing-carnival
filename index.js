@@ -188,7 +188,7 @@ async function run() {
 
     } catch (e) {
         console.error("КРИТИЧНА ПОМИЛКА:", e);
-        await page.screenshot("0.png");
+        await page.screenshot({ path: `error.png` });
         process.exit(1);
     } finally {
         await browser.close();
