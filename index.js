@@ -96,7 +96,7 @@ async function run() {
     const { browser, page } = await connect({
         headless: false,
         turnstile: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--start-maximized"],
+        args: ["--proxy-server=socks5://127.0.0.1:40000", "--no-sandbox", "--disable-setuid-sandbox", "--start-maximized"],
         connectOption: { defaultViewport: null }
     });
 
